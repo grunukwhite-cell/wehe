@@ -294,13 +294,12 @@
 
   <script>
     // --- SUPABASE CONFIGURATION ---
-    // Вставьте сюда ваши данные из панели Supabase (Settings -> API)
     const SUPABASE_URL = 'https://trzfwnfmzhzpjambccqb.supabase.co'; 
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyemZ3bmZtemh6cGphbWJjY3FiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3OTEyNjIsImV4cCI6MjEwMTM2NzI2Mn0.pNZglgTBCpxh2n82t-CYUAk-I70GmZT_sZbHSM1OPvU';
     
     let supabaseClient = null;
     try {
-      if (SUPABASE_URL !== 'https://trzfwnfmzhzpjambccqb.supabase.co') {
+      if (window.supabase) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       }
     } catch (e) {
@@ -595,456 +594,278 @@
     let isSpinning = false;
     let lastSectorIndex = -1;
 
-    function triggerArrowClick() {
-      const arrowContainer = document.getElementById('arrowContainer');
-      arrowContainer.classList.add('click-bend');
-      setTimeout(() => arrowContainer.classList.remove('click-bend'), 80);
-      playTickSound();
-      if ("vibrate" in navigator) navigator.vibrate(15);
+    function triggerArrowClickBend() {
+      const arrow = document.getElementById('arrowContainer');
+      arrow.classList.add('click-bend');
+      setTimeout(() => arrow.classList.remove('click-bend'), 100);
     }
 
     function drawWheel() {
-      ctx.clearRect(0, 0, 800, 800);
-      let normalizedRot = (currentRotation % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-      let activeIndex = Math.floor((2 * Math.PI - (normalizedRot + Math.PI / 2) % (2 * Math.PI)) / arc) % numSectors;
-
-      if (activeIndex !== lastSectorIndex && isSpinning) {
-        triggerArrowClick();
-        lastSectorIndex = activeIndex;
-      }
-
-      for (let i = 0; i < numSectors; i++) {
-        const startAngle = currentRotation + i * arc;
-        const endAngle = startAngle + arc;
-        const isHovered = (i === activeIndex);
-
-        ctx.save();
-        if (isHovered) {
-          const currentRadius = baseRadius + 22;
-          ctx.shadowColor = "#ffffff";
-          ctx.shadowBlur = 30;
-
-          ctx.beginPath();
-          ctx.fillStyle = sectors[i].color;
-          ctx.moveTo(centerX, centerY);
-          ctx.arc(centerX, centerY, currentRadius, startAngle, endAngle);
-          ctx.lineTo(centerX, centerY);
-          ctx.fill();
-
-          ctx.strokeStyle = "#ffffff";
-          ctx.lineWidth = 6;
-          ctx.stroke();
-
-          ctx.translate(centerX, centerY);
-          ctx.rotate(startAngle + arc / 2);
-          ctx.textAlign = "right";
-          ctx.fillStyle = "#ffffff";
-          ctx.font = "900 30px 'Poppins', sans-serif";
-          ctx.fillText(sectors[i].label, currentRadius - 35, 10);
-        } else {
-          ctx.beginPath();
-          ctx.fillStyle = sectors[i].color;
-          ctx.moveTo(centerX, centerY);
-          ctx.arc(centerX, centerY, baseRadius, startAngle, endAngle);
-          ctx.lineTo(centerX, centerY);
-          ctx.fill();
-
-          ctx.strokeStyle = "rgba(0, 0, 0, 0.4)";
-          ctx.lineWidth = 3;
-          ctx.stroke();
-
-          ctx.translate(centerX, centerY);
-          ctx.rotate(startAngle + arc / 2);
-          ctx.textAlign = "right";
-          ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-          ctx.font = "800 23px 'Poppins', sans-serif";
-          ctx.fillText(sectors[i].label, baseRadius - 40, 8);
-        }
-        ctx.restore();
-      }
-
-      for (let i = 0; i < numSectors; i++) {
-        const pegAngle = currentRotation + i * arc;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      sectors.forEach((sector, i) => {
+        const angle = currentRotation + i * arc;
         ctx.beginPath();
-        ctx.arc(centerX + Math.cos(pegAngle) * (baseRadius - 12), centerY + Math.sin(pegAngle) * (baseRadius - 12), 6, 0, 2 * Math.PI);
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = sector.color;
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, baseRadius, angle, angle + arc);
+        ctx.lineTo(centerX, centerY);
         ctx.fill();
-      }
+        ctx.save();
 
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, 45, 0, 2 * Math.PI);
-      ctx.fillStyle = "#ff4757";
-      ctx.fill();
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 4;
-      ctx.stroke();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(angle + arc / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 20px 'Poppins', sans-serif";
+        ctx.shadowColor = "rgba(0,0,0,0.8)";
+        ctx.shadowBlur = 6;
+        ctx.fillText(sector.label, baseRadius - 25, 7);
+        ctx.restore();
+      });
     }
-
     drawWheel();
-    renderHistoryUI();
-
-    function executeRotation(targetPrize) {
-      initAudio();
-      isSpinning = true;
-      startBulbChaser(true);
-      document.getElementById("spinBtn").disabled = true;
-      document.getElementById("result").innerText = "Spinning...";
-      document.getElementById("result").style.color = "#ff4757";
-
-      let prizeIndex = 0;
-      if (targetPrize === 'RANDOM') {
-        prizeIndex = getRandomSector();
-      } else {
-        prizeIndex = sectors.findIndex(s => s.label === targetPrize);
-        if (prizeIndex === -1) prizeIndex = 0;
-      }
-
-      const sectorAngle = (2 * Math.PI) / numSectors;
-      const targetAngleRad = (2 * Math.PI) - (prizeIndex * sectorAngle) - (sectorAngle / 2) - (Math.PI / 2); 
-      
-      const extraSpins = 12 * 2 * Math.PI;
-      const startRotation = currentRotation;
-      const totalRotationNeeded = startRotation + extraSpins + (targetAngleRad - (startRotation % (2 * Math.PI)));
-      
-      const duration = 9000;
-      const startTime = performance.now();
-
-      function animateWheel(now) {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const easeProgress = 1 - Math.pow(1 - progress, 4);
-        
-        currentRotation = startRotation + (totalRotationNeeded - startRotation) * easeProgress;
-        drawWheel();
-
-        if (progress < 1) {
-          requestAnimationFrame(animateWheel);
-        } else {
-          isSpinning = false;
-          startBulbChaser(false);
-          const wonPrize = sectors[prizeIndex].label;
-          document.getElementById("result").innerText = `🎉 Result: ${wonPrize}!`;
-          document.getElementById("result").style.color = "#2ed573";
-          document.getElementById("spinBtn").disabled = false;
-          
-          savePersonalHistory(wonPrize);
-          showWinModal(wonPrize);
-        }
-      }
-
-      requestAnimationFrame(animateWheel);
-    }
 
     async function startSpin() {
       if (isSpinning) return;
-      const input = document.getElementById("promoInput");
-      const code = input.value.trim().toUpperCase();
+      const promoInput = document.getElementById('promoInput');
+      const code = promoInput.value.trim();
+      const resultDiv = document.getElementById('result');
 
-      if (!code) { alert("Please enter a code!"); return; }
-
-      if (supabaseClient) {
-        const { data, error } = await supabaseClient
-          .from('promo_codes')
-          .select('*')
-          .eq('code', code)
-          .single();
-
-        if (error || !data) { alert("Invalid code!"); return; }
-        if (data.used) { alert("Code already used!"); return; }
-
-        await supabaseClient
-          .from('promo_codes')
-          .update({ used: true })
-          .eq('code', code);
-
-        chainedNextPrize = data.next_prize || "RANDOM";
-        input.value = "";
-        executeRotation(data.prize);
-      } else {
-        const codes = getLocalCodes();
-        if (!codes[code]) { alert("Invalid code!"); return; }
-        if (codes[code].used) { alert("Code already used!"); return; }
-
-        codes[code].used = true;
-        saveLocalCodes(codes);
-        chainedNextPrize = codes[code].nextPrize || "RANDOM";
-        input.value = "";
-        executeRotation(codes[code].prize);
+      if (!code) {
+        resultDiv.style.color = "#ff4757";
+        resultDiv.innerText = "Please enter promo code!";
+        return;
       }
+
+      if (!supabaseClient) {
+        resultDiv.style.color = "#ff4757";
+        resultDiv.innerText = "Supabase not connected!";
+        return;
+      }
+
+      // Проверяем код в Supabase
+      const { data, error } = await supabaseClient
+        .from('promo_codes')
+        .select('*')
+        .eq('code', code)
+        .single();
+
+      if (error || !data) {
+        resultDiv.style.color = "#ff4757";
+        resultDiv.innerText = "Invalid code!";
+        playSadSound();
+        return;
+      }
+
+      if (data.used) {
+        resultDiv.style.color = "#ff4757";
+        resultDiv.innerText = "Code already used!";
+        playSadSound();
+        return;
+      }
+
+      // Отмечаем код как использованный
+      await supabaseClient
+        .from('promo_codes')
+        .update({ used: true })
+        .eq('code', code);
+
+      isSpinning = true;
+      promoInput.value = "";
+      resultDiv.innerText = "Spinning...";
+      startBulbChaser(true);
+
+      let targetPrize = data.prize;
+      chainedNextPrize = data.next_prize || "RANDOM";
+
+      let targetIndex = sectors.findIndex(s => s.label === targetPrize);
+      if (targetIndex === -1) targetIndex = 0;
+
+      const randomSpins = 5 * 2 * Math.PI;
+      const sectorAngle = (2 * Math.PI) / numSectors;
+      const targetAngle = randomSpins + (numSectors - targetIndex) * sectorAngle - sectorAngle / 2;
+
+      const startTime = performance.now();
+      const duration = 4000;
+
+      function animateSpin(currentTime) {
+        const elapsed = currentTime - startTime;
+        if (elapsed < duration) {
+          const progress = elapsed / duration;
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          currentRotation = targetAngle * easeOut;
+          drawWheel();
+
+          const currentSec = Math.floor((numSectors - (currentRotation % (2 * Math.PI)) / sectorAngle) % numSectors);
+          if (currentSec !== lastSectorIndex) {
+            playTickSound();
+            triggerArrowClickBend();
+            lastSectorIndex = currentSec;
+          }
+          requestAnimationFrame(animateSpin);
+        } else {
+          currentRotation = targetAngle;
+          drawWheel();
+          isSpinning = false;
+          startBulbChaser(false);
+
+          currentWonPrize = targetPrize;
+          currentClaimCode = code;
+
+          if (targetPrize === "JACKPOT") {
+            playJackpotSound();
+          } else if (targetPrize === "Better luck") {
+            playSadSound();
+          } else {
+            playWinSound();
+          }
+
+          resultDiv.style.color = "#2ed573";
+          resultDiv.innerText = "Winner: " + targetPrize;
+          showWinModal(targetPrize);
+          saveHistoryToCloud(targetPrize);
+          loadHistoryFromCloud();
+        }
+      }
+      requestAnimationFrame(animateSpin);
     }
 
-    function generateClaimHash(prize) {
-      const randHex = Math.random().toString(36).substring(2, 6).toUpperCase();
-      const randNum = Math.floor(1000 + Math.random() * 9000);
-      return `WIN-${prize.replace(/\s+/g, '').toUpperCase()}-${randHex}-${randNum}`;
+    function showWinModal(prize) {
+      const modal = document.getElementById('winModal');
+      const meta = prizeMeta[prize] || prizeMeta["DEFAULT"];
+      document.getElementById('winIcon').innerText = meta.emoji;
+      document.getElementById('winModalTitle').innerText = meta.title;
+      document.getElementById('winQuote').innerText = `"${meta.quotes[Math.floor(Math.random() * meta.quotes.length)]}"`;
+      document.getElementById('winPrizeText').innerText = prize;
+      document.getElementById('claimCodeDisplay').innerText = currentClaimCode;
+      modal.classList.add('active');
     }
 
     function copyClaimCode() {
-      navigator.clipboard.writeText(currentClaimCode).then(() => {
-        alert(`Copied code: ${currentClaimCode}\nSend this code to claim your reward!`);
-      });
-    }
-
-    function showWinModal(prizeName) {
-      currentWonPrize = prizeName;
-      currentClaimCode = generateClaimHash(prizeName);
-
-      if (prizeName.toUpperCase() === "JACKPOT") {
-        playJackpotSound();
-      } else if (prizeName.toLowerCase().includes("better luck")) {
-        playSadSound();
-      } else {
-        playWinSound();
-      }
-
-      document.getElementById("winPrizeText").innerText = prizeName;
-      document.getElementById("claimCodeDisplay").innerText = currentClaimCode;
-
-      const meta = prizeMeta[prizeName] || prizeMeta[Object.keys(prizeMeta).find(k => prizeName.includes(k))] || prizeMeta["DEFAULT"];
-      
-      document.getElementById("winIcon").innerText = meta.emoji;
-      document.getElementById("winModalTitle").innerText = meta.title;
-      
-      const randomQuote = meta.quotes[Math.floor(Math.random() * meta.quotes.length)];
-      document.getElementById("winQuote").innerText = `"${randomQuote}"`;
-
-      const claimBtn = document.getElementById("claimBtn");
-      const codeBox = document.getElementById("claimCodeBox");
-
-      if (prizeName.toUpperCase() === "JACKPOT") {
-        claimBtn.innerText = "CLAIM & FREE RESPIN! 🚀";
-        codeBox.style.display = "flex";
-      } else if (prizeName.toUpperCase() === "RESPIN") {
-        claimBtn.innerText = "SPIN AGAIN NOW 🔄";
-        codeBox.style.display = "none";
-      } else if (prizeName.toLowerCase().includes("better luck")) {
-        claimBtn.innerText = "1 MORE TRY?";
-        codeBox.style.display = "none";
-      } else {
-        claimBtn.innerText = "Claim Prize";
-        codeBox.style.display = "flex";
-      }
-
-      const modal = document.getElementById("winModal");
-      modal.classList.add("active");
-      if (!prizeName.toLowerCase().includes("better luck")) launchConfetti();
+      navigator.clipboard.writeText(currentClaimCode);
+      event.target.innerText = "Copied! ❤️";
+      setTimeout(() => event.target.innerText = "Copy Code", 2000);
     }
 
     function handleClaimAction() {
-      closeWinModal();
-      if (currentWonPrize.toUpperCase() === "RESPIN" || currentWonPrize.toUpperCase() === "JACKPOT") {
-        const nextTarget = chainedNextPrize;
-        chainedNextPrize = "RANDOM";
-        setTimeout(() => executeRotation(nextTarget), 400);
-      } else if (currentWonPrize.toLowerCase().includes("better luck")) {
-        document.getElementById("promoInput").focus();
+      document.getElementById('winModal').classList.remove('active');
+    }
+
+    async function saveHistoryToCloud(prize) {
+      if (!supabaseClient) return;
+      await supabaseClient.from('spin_history').insert([{ prize: prize }]);
+    }
+
+    async function loadHistoryFromCloud() {
+      if (!supabaseClient) return;
+      const { data } = await supabaseClient.from('spin_history').select('*').order('created_at', { ascending: false }).limit(10);
+      const list = document.getElementById('historyList');
+      if (!data || data.length === 0) {
+        list.innerHTML = '<div class="empty-history">No spins recorded yet</div>';
+        return;
+      }
+      list.innerHTML = data.map(item => `
+        <div class="history-item">
+          <span class="prize-name">${item.prize}</span>
+          <span class="time">${new Date(item.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+        </div>
+      `).join('');
+    }
+    loadHistoryFromCloud();
+
+    // --- ADMIN PANEL SECRETS ---
+    window.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+        document.getElementById('adminOverlay').classList.add('active');
+      }
+    });
+
+    async function attemptAdminLogin() {
+      const u = document.getElementById('adminUser').value;
+      const p = document.getElementById('adminPass').value;
+      if (u === 'admin' && p === 'lera123') {
+        document.getElementById('adminLoginCard').style.display = 'none';
+        document.getElementById('adminPanel').classList.add('active');
+        loadAdminStats();
       } else {
-        copyClaimCode();
-      }
-    }
-
-    function closeWinModal() {
-      document.getElementById("winModal").classList.remove("active");
-      stopConfetti();
-    }
-
-    async function savePersonalHistory(prize) {
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      if (supabaseClient) {
-        await supabaseClient.from('spin_history').insert([{ prize: prize }]);
-      }
-      let history = JSON.parse(localStorage.getItem('my_spin_history')) || [];
-      history.unshift({ prize: prize, time: timeStr });
-      localStorage.setItem('my_spin_history', JSON.stringify(history.slice(0, 15)));
-      renderHistoryUI();
-    }
-
-    async function renderHistoryUI() {
-      const container = document.getElementById('historyList');
-      
-      if (supabaseClient) {
-        const { data, error } = await supabaseClient
-          .from('spin_history')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(15);
-
-        if (!error && data && data.length > 0) {
-          container.innerHTML = data.map(item => {
-            const timeStr = new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            return `<div class="history-item"><span class="prize-name">${item.prize}</span><span class="time">${timeStr}</span></div>`;
-          }).join('');
-          return;
-        }
-      }
-
-      let history = JSON.parse(localStorage.getItem('my_spin_history')) || [];
-      if (history.length === { length: 0 }.length && history.length === 0) { 
-        container.innerHTML = '<div class="empty-history">No spins recorded yet</div>'; 
-        return; 
-      }
-      container.innerHTML = history.map(item => `<div class="history-item"><span class="prize-name">${item.prize}</span><span class="time">${item.time}</span></div>`).join('');
-    }
-
-    function getLocalCodes() { return JSON.parse(localStorage.getItem('wheel_codes')) || {}; }
-    function saveLocalCodes(codes) { localStorage.setItem('wheel_codes', JSON.stringify(codes)); }
-
-    function getRandomSector() {
-      const rand = Math.random() * 100;
-      let cumulative = 0;
-      for (let i = 0; i < sectors.length; i++) {
-        cumulative += sectors[i].prob;
-        if (rand <= cumulative) return i;
-      }
-      return 0;
-    }
-
-    // --- ADMIN SYSTEM ---
-    function checkAdminHash() {
-      if (window.location.hash === "#admin") {
-        document.getElementById("adminOverlay").classList.add("active");
-        updateAdminDashboard();
-      }
-    }
-
-    window.addEventListener("hashchange", checkAdminHash);
-    window.addEventListener("load", checkAdminHash);
-
-    function attemptAdminLogin() {
-      const user = document.getElementById("adminUser").value;
-      const pass = document.getElementById("adminPass").value;
-
-      if (user === "admin" && pass === "lera2026") {
-        document.getElementById("adminLoginCard").style.display = "none";
-        document.getElementById("adminPanel").classList.add("active");
-        document.getElementById("loginError").style.display = "none";
-        updateAdminDashboard();
-      } else {
-        document.getElementById("loginError").style.display = "block";
+        document.getElementById('loginError').style.display = 'block';
       }
     }
 
     function closeAdminOverlay() {
-      document.getElementById("adminOverlay").classList.remove("active");
-      window.location.hash = "";
+      document.getElementById('adminOverlay').classList.remove('active');
+      document.getElementById('adminLoginCard').style.display = 'block';
+      document.getElementById('adminPanel').classList.remove('active');
     }
 
-    async function updateAdminDashboard() {
-      let entries = [];
-      if (supabaseClient) {
-        const { data } = await supabaseClient.from('promo_codes').select('*');
-        if (data) entries = data.map(d => [d.code, d]);
-      } else {
-        const codes = getLocalCodes();
-        entries = Object.entries(codes);
-      }
-      
-      let total = entries.length;
-      let usedCount = entries.filter(([_, d]) => d.used).length;
-      let activeCount = total - usedCount;
+    async function loadAdminStats() {
+      if (!supabaseClient) return;
+      const { data } = await supabaseClient.from('promo_codes').select('*');
+      if (!data) return;
 
-      document.getElementById("statTotal").innerText = total;
-      document.getElementById("statActive").innerText = activeCount;
-      document.getElementById("statUsed").innerText = usedCount;
+      document.getElementById('statTotal').innerText = data.length;
+      document.getElementById('statActive').innerText = data.filter(x => !x.used).length;
+      document.getElementById('statUsed').innerText = data.filter(x => x.used).length;
 
-      const tbody = document.getElementById("adminCodeTableBody");
-      if (entries.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#747d8c;">No promo codes in system</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = entries.map(([code, d]) => `
+      const tbody = document.getElementById('adminCodeTableBody');
+      tbody.innerHTML = data.map(row => `
         <tr>
-          <td><b>${code}</b></td>
-          <td>${d.prize}</td>
-          <td><span style="color:#fdcb6e; font-weight:700;">${d.next_prize || d.nextPrize || 'RANDOM'}</span></td>
-          <td><span class="badge ${d.used ? 'badge-used' : 'badge-active'}">${d.used ? 'Used' : 'Active'}</span></td>
-          <td>${d.created_at || d.createdAt || '-'}</td>
+          <td style="font-family:monospace; font-weight:700;">${row.code}</td>
+          <td>${row.prize}</td>
+          <td>${row.next_prize || '-'}</td>
+          <td><span class="badge ${row.used ? 'badge-used' : 'badge-active'}">${row.used ? 'Used' : 'Active'}</span></td>
+          <td style="color:#a4b0be;">${new Date(row.created_at).toLocaleDateString()}</td>
         </tr>
       `).join('');
     }
 
     async function createCode() {
-      const code = document.getElementById("newCodeInput").value.trim().toUpperCase();
-      const prize = document.getElementById("prizeSelect").value;
-      const nextPrize = (prize === "JACKPOT" || prize === "RESPIN") ? document.getElementById("nextPrizeSelect").value : "RANDOM";
-      
-      if (!code) return alert("Enter code name!");
+      const codeInput = document.getElementById('newCodeInput');
+      const code = codeInput.value.trim().toUpperCase();
+      const prize = prizeSelect.value;
+      const nextPrize = nextPrizeSelect.value;
 
-      if (supabaseClient) {
-        await supabaseClient.from('promo_codes').insert([{ code, prize, next_prize: nextPrize, used: false }]);
+      if (!code) return alert('Enter code name!');
+
+      const { error } = await supabaseClient.from('promo_codes').insert([{
+        code: code,
+        prize: prize,
+        next_prize: nextPrize,
+        used: false
+      }]);
+
+      if (error) {
+        alert('Error creating code: ' + error.message);
       } else {
-        const codes = getLocalCodes();
-        codes[code] = { prize, nextPrize, used: false, createdAt: new Date().toLocaleString() };
-        saveLocalCodes(codes);
+        codeInput.value = '';
+        loadAdminStats();
+        alert('Code created successfully!');
       }
-      document.getElementById("newCodeInput").value = "";
-      updateAdminDashboard();
     }
 
     async function createBulkCodes() {
-      const prize = document.getElementById("prizeSelect").value;
-      const nextPrize = (prize === "JACKPOT" || prize === "RESPIN") ? document.getElementById("nextPrizeSelect").value : "RANDOM";
-      let createdList = [];
-
-      for (let i = 0; i < 10; i++) {
-        const bulkCode = "LERA-" + Math.random().toString(36).substring(2, 7).toUpperCase();
-        createdList.push(bulkCode);
-        if (supabaseClient) {
-          await supabaseClient.from('promo_codes').insert([{ code: bulkCode, prize, next_prize: nextPrize, used: false }]);
-        } else {
-          const codes = getLocalCodes();
-          codes[bulkCode] = { prize, nextPrize, used: false, createdAt: new Date().toLocaleString() };
-          saveLocalCodes(codes);
-        }
+      const batch = [];
+      for(let i=1; i<=10; i++) {
+        const randNum = Math.floor(1000 + Math.random() * 9000);
+        batch.push({
+          code: `LERA-${randNum}`,
+          prize: "RANDOM",
+          next_prize: "RANDOM",
+          used: false
+        });
       }
-      updateAdminDashboard();
-      prompt("⚡ 10 Bulk Codes Generated! Copy them below:", createdList.join("\n"));
+      const { error } = await supabaseClient.from('promo_codes').insert(batch);
+      if(error) alert('Error: ' + error.message);
+      else {
+        loadAdminStats();
+        alert('10 codes generated!');
+      }
     }
 
     async function clearUsedCodes() {
-      if (!confirm("Are you sure you want to delete all USED codes?")) return;
-      if (supabaseClient) {
-        await supabaseClient.from('promo_codes').delete().eq('used', true);
-      } else {
-        const codes = getLocalCodes();
-        const activeOnly = {};
-        Object.entries(codes).forEach(([c, d]) => { if (!d.used) activeOnly[c] = d; });
-        saveLocalCodes(activeOnly);
-      }
-      updateAdminDashboard();
-    }
-
-    // --- CONFETTI ENGINE ---
-    let confettiAnimationId = null;
-    function launchConfetti() {
-      const cCanvas = document.getElementById("confettiCanvas");
-      const cCtx = cCanvas.getContext("2d");
-      cCanvas.width = cCanvas.offsetWidth; cCanvas.height = cCanvas.offsetHeight;
-      const pieces = [];
-      const colors = ['#ff4757', '#2ed573', '#fdcb6e', '#0984e3'];
-      for (let i = 0; i < 35; i++) {
-        pieces.push({
-          x: Math.random() * cCanvas.width, y: Math.random() * cCanvas.height,
-          size: Math.random() * 6 + 4, color: colors[Math.floor(Math.random() * colors.length)],
-          speedY: Math.random() * 1.5 + 0.5, speedX: Math.random() * 1 - 0.5
-        });
-      }
-      function render() {
-        cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
-        pieces.forEach(p => {
-          cCtx.fillStyle = p.color;
-          cCtx.fillRect(p.x, p.y, p.size, p.size);
-          p.y += p.speedY; p.x += p.speedX;
-          if (p.y > cCanvas.height) p.y = -10;
-        });
-        confettiAnimationId = requestAnimationFrame(render);
-      }
-      render();
-    }
-
-    function stopConfetti() {
-      if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId);
+      if(!confirm('Delete all used codes?')) return;
+      await supabaseClient.from('promo_codes').delete().eq('used', true);
+      loadAdminStats();
     }
   </script>
 </body>
