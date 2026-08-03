@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wheel of Lera</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <!-- Подключаем библиотеку Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -194,7 +195,7 @@
     <div class="history-container">
       <div class="history-title">
         <span>📜 My Spin History</span>
-        <span style="font-size: 11px; color: #a4b0be; font-weight: 400;">(Your browser history)</span>
+        <span style="font-size: 11px; color: #a4b0be; font-weight: 400;">(Cloud synced)</span>
       </div>
       <div class="history-list" id="historyList">
         <div class="empty-history">No spins recorded yet</div>
@@ -235,7 +236,7 @@
 
     <div class="admin-panel" id="adminPanel">
       <div class="admin-header">
-        <h3>⚡ Admin Dashboard</h3>
+        <h3>⚡ Admin Dashboard (Supabase)</h3>
         <button onclick="playAdminClickSound(); closeAdminOverlay();" style="padding: 6px 16px; font-size:12px;">Close</button>
       </div>
 
@@ -261,7 +262,7 @@
           <option value="RANDOM">🎲 Random (By Odds)</option>
         </select>
 
-        <select id="nextPrizeSelect" title="Next outcome if Jackpot/Respin is hit">
+        <select id="nextPrizeSelect" title="Next outcome if Jackpot/Respin is hit" style="display:none;">
           <option value="RANDOM">⚡ Next Spin: Random</option>
         </select>
       </div>
@@ -292,9 +293,20 @@
   </div>
 
   <script>
-const SUPABASE_URL = 'sb_publishable_eCeGKzNOkXAlKJUwWf0ZYw_5SOjT1nE';
-const SUPABASE_ANON_KEY = 'sb_secret_PHrzCzbwMWWvgDSElXTsoQ_wkZkgO17';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // --- SUPABASE CONFIGURATION ---
+    // Вставьте сюда ваши данные из панели Supabase (Settings -> API)
+    const SUPABASE_URL = 'sb_publishable_eCeGKzNOkXAlKJUwWf0ZYw_5SOjT1nE'; 
+    const SUPABASE_ANON_KEY = 'sb_secret_-RcYQIuADxZvKPMqr2AKWw_rELJ-cPV';
+    
+    let supabaseClient = null;
+    try {
+      if (SUPABASE_URL !== 'ВАШ_PROJECT_URL') {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+    } catch (e) {
+      console.error("Supabase init error:", e);
+    }
+
     // --- COMFORT CHAIN SYNTHESIZER ENGINE ---
     let audioCtx = null;
     let isMusicPlaying = false;
@@ -310,8 +322,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       }
     }
 
-    // "Comfort Chain" Ambient Dream-Pop Vibe Generator
-    // Мягкие, расслабляющие, зацикленные мечтательные аккорды
     const comfortChords = [
       [220.00, 261.63, 329.63, 392.00], // Am7
       [174.61, 220.00, 261.63, 329.63], // Fmaj7
@@ -321,11 +331,9 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     function playComfortChainBeat() {
       if (!isMusicPlaying || !audioCtx) return;
-
       const chord = comfortChords[Math.floor(stepCount / 2) % comfortChords.length];
       const now = audioCtx.currentTime;
 
-      // Warm Pad Synth Sound
       chord.forEach((freq, i) => {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -333,8 +341,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, now);
-
-        // Lowpass filter gives that muffled, relaxing "Comfort Chain" vibe
         filter.type = 'lowpass';
         filter.frequency.setValueAtTime(600, now);
 
@@ -349,7 +355,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         osc.start(now + (i * 0.08)); 
         osc.stop(now + 2.3);
       });
-
       stepCount++;
     }
 
@@ -357,7 +362,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       initAudio();
       isMusicPlaying = !isMusicPlaying;
       const btn = document.getElementById('musicToggleBtn');
-      
       if (isMusicPlaying) {
         btn.innerText = "🎧 Comfort Chain: ON";
         btn.style.borderColor = "#ff4757";
@@ -595,7 +599,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       const arrowContainer = document.getElementById('arrowContainer');
       arrowContainer.classList.add('click-bend');
       setTimeout(() => arrowContainer.classList.remove('click-bend'), 80);
-
       playTickSound();
       if ("vibrate" in navigator) navigator.vibrate(15);
     }
@@ -732,26 +735,45 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       requestAnimationFrame(animateWheel);
     }
 
-    function startSpin() {
+    async function startSpin() {
       if (isSpinning) return;
       const input = document.getElementById("promoInput");
       const code = input.value.trim().toUpperCase();
 
       if (!code) { alert("Please enter a code!"); return; }
 
-      const codes = getCodes();
-      if (!codes[code]) { alert("Invalid code!"); return; }
-      if (codes[code].used) { alert("Code already used!"); return; }
+      if (supabaseClient) {
+        // Проверяем через Supabase
+        const { data, error } = await supabaseClient
+          .from('promo_codes')
+          .select('*')
+          .eq('code', code)
+          .single();
 
-      codes[code].used = true;
-      codes[code].usedAt = new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
-      
-      chainedNextPrize = codes[code].nextPrize || "RANDOM";
-      
-      saveCodes(codes);
-      input.value = "";
+        if (error || !data) { alert("Invalid code!"); return; }
+        if (data.used) { alert("Code already used!"); return; }
 
-      executeRotation(codes[code].prize);
+        // Обновляем статус в Supabase
+        await supabaseClient
+          .from('promo_codes')
+          .update({ used: true })
+          .eq('code', code);
+
+        chainedNextPrize = data.next_prize || "RANDOM";
+        input.value = "";
+        executeRotation(data.prize);
+      } else {
+        // Резервный локальный режим, если Supabase еще не подключен
+        const codes = getLocalCodes();
+        if (!codes[code]) { alert("Invalid code!"); return; }
+        if (codes[code].used) { alert("Code already used!"); return; }
+
+        codes[code].used = true;
+        saveLocalCodes(codes);
+        chainedNextPrize = codes[code].nextPrize || "RANDOM";
+        input.value = "";
+        executeRotation(codes[code].prize);
+      }
     }
 
     function generateClaimHash(prize) {
@@ -829,23 +851,26 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       stopConfetti();
     }
 
-    function savePersonalHistory(prize) {
-      let history = JSON.parse(localStorage.getItem('my_spin_history')) || [];
+    async function savePersonalHistory(prize) {
       const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (supabaseClient) {
+        await supabaseClient.from('spin_history').insert([{ prize: prize }]);
+      }
+      let history = JSON.parse(localStorage.getItem('my_spin_history')) || [];
       history.unshift({ prize: prize, time: timeStr });
       localStorage.setItem('my_spin_history', JSON.stringify(history.slice(0, 15)));
       renderHistoryUI();
     }
 
     function renderHistoryUI() {
-      const history = JSON.parse(localStorage.getItem('my_spin_history')) || [];
+      let history = JSON.parse(localStorage.getItem('my_spin_history')) || [];
       const container = document.getElementById('historyList');
       if (history.length === 0) { container.innerHTML = '<div class="empty-history">No spins recorded yet</div>'; return; }
       container.innerHTML = history.map(item => `<div class="history-item"><span class="prize-name">${item.prize}</span><span class="time">${item.time}</span></div>`).join('');
     }
 
-    function getCodes() { return JSON.parse(localStorage.getItem('wheel_codes')) || {}; }
-    function saveCodes(codes) { localStorage.setItem('wheel_codes', JSON.stringify(codes)); updateAdminDashboard(); }
+    function getLocalCodes() { return JSON.parse(localStorage.getItem('wheel_codes')) || {}; }
+    function saveLocalCodes(codes) { localStorage.setItem('wheel_codes', JSON.stringify(codes)); }
 
     function getRandomSector() {
       const rand = Math.random() * 100;
@@ -857,10 +882,11 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       return 0;
     }
 
-    // --- ADMIN SYSTEM & AUDIT LOG ---
+    // --- ADMIN SYSTEM ---
     function checkAdminHash() {
       if (window.location.hash === "#admin") {
         document.getElementById("adminOverlay").classList.add("active");
+        updateAdminDashboard();
       }
     }
 
@@ -886,9 +912,15 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       window.location.hash = "";
     }
 
-    function updateAdminDashboard() {
-      const codes = getCodes();
-      const entries = Object.entries(codes);
+    async function updateAdminDashboard() {
+      let entries = [];
+      if (supabaseClient) {
+        const { data } = await supabaseClient.from('promo_codes').select('*');
+        if (data) entries = data.map(d => [d.code, d]);
+      } else {
+        const codes = getLocalCodes();
+        entries = Object.entries(codes);
+      }
       
       let total = entries.length;
       let usedCount = entries.filter(([_, d]) => d.used).length;
@@ -908,61 +940,62 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         <tr>
           <td><b>${code}</b></td>
           <td>${d.prize}</td>
-          <td><span style="color:#fdcb6e; font-weight:700;">${d.nextPrize || 'RANDOM'}</span></td>
+          <td><span style="color:#fdcb6e; font-weight:700;">${d.next_prize || d.nextPrize || 'RANDOM'}</span></td>
           <td><span class="badge ${d.used ? 'badge-used' : 'badge-active'}">${d.used ? 'Used' : 'Active'}</span></td>
-          <td>${d.createdAt || '-'}</td>
+          <td>${d.created_at || d.createdAt || '-'}</td>
         </tr>
       `).join('');
     }
 
-    function createCode() {
+    async function createCode() {
       const code = document.getElementById("newCodeInput").value.trim().toUpperCase();
       const prize = document.getElementById("prizeSelect").value;
       const nextPrize = (prize === "JACKPOT" || prize === "RESPIN") ? document.getElementById("nextPrizeSelect").value : "RANDOM";
       
       if (!code) return alert("Enter code name!");
-      const codes = getCodes();
-      codes[code] = { 
-        prize: prize, 
-        nextPrize: nextPrize,
-        used: false,
-        createdAt: new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }),
-        usedAt: null
-      };
-      saveCodes(codes);
+
+      if (supabaseClient) {
+        await supabaseClient.from('promo_codes').insert([{ code, prize, next_prize: nextPrize, used: false }]);
+      } else {
+        const codes = getLocalCodes();
+        codes[code] = { prize, nextPrize, used: false, createdAt: new Date().toLocaleString() };
+        saveLocalCodes(codes);
+      }
       document.getElementById("newCodeInput").value = "";
+      updateAdminDashboard();
     }
 
-    function createBulkCodes() {
+    async function createBulkCodes() {
       const prize = document.getElementById("prizeSelect").value;
       const nextPrize = (prize === "JACKPOT" || prize === "RESPIN") ? document.getElementById("nextPrizeSelect").value : "RANDOM";
-      const codes = getCodes();
       let createdList = [];
-      const nowStr = new Date().toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
 
       for (let i = 0; i < 10; i++) {
         const bulkCode = "LERA-" + Math.random().toString(36).substring(2, 7).toUpperCase();
-        codes[bulkCode] = { 
-          prize: prize, 
-          nextPrize: nextPrize,
-          used: false,
-          createdAt: nowStr,
-          usedAt: null
-        };
         createdList.push(bulkCode);
+        if (supabaseClient) {
+          await supabaseClient.from('promo_codes').insert([{ code: bulkCode, prize, next_prize: nextPrize, used: false }]);
+        } else {
+          const codes = getLocalCodes();
+          codes[bulkCode] = { prize, nextPrize, used: false, createdAt: new Date().toLocaleString() };
+          saveLocalCodes(codes);
+        }
       }
-      saveCodes(codes);
+      updateAdminDashboard();
       prompt("⚡ 10 Bulk Codes Generated! Copy them below:", createdList.join("\n"));
     }
 
-    function clearUsedCodes() {
+    async function clearUsedCodes() {
       if (!confirm("Are you sure you want to delete all USED codes?")) return;
-      const codes = getCodes();
-      const activeOnly = {};
-      Object.entries(codes).forEach(([c, d]) => {
-        if (!d.used) activeOnly[c] = d;
-      });
-      saveCodes(activeOnly);
+      if (supabaseClient) {
+        await supabaseClient.from('promo_codes').delete().eq('used', true);
+      } else {
+        const codes = getLocalCodes();
+        const activeOnly = {};
+        Object.entries(codes).forEach(([c, d]) => { if (!d.used) activeOnly[c] = d; });
+        saveLocalCodes(activeOnly);
+      }
+      updateAdminDashboard();
     }
 
     // --- CONFETTI ENGINE ---
