@@ -639,7 +639,6 @@
         <span class="social-icon">💳</span>
         PayPal
       </button>
-      <!-- Скрытая кнопка CRYPTO (если понадобится вернуть - просто убери style="display:none;") -->
       <button class="social-btn btn-crypto" style="display:none;" onclick="playBubbleSound(); openPaymentModal('crypto');">
         <span class="social-icon">💲</span>
         Crypto
@@ -755,6 +754,9 @@
   </div>
 
   <script>
+    // ОЧИСТКА СТАРЫХ КЭШИРОВАННЫХ ДАННЫХ В КЛИЕНТСКОМ LOCALSTORAGE ПРИ ЗАГРУЗКЕ
+    localStorage.removeItem('spin_history_local');
+
     // HOTKEY: CTRL + SHIFT + L → Admin Panel
     window.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.shiftKey && ['L','l','д','Д'].includes(e.key)) {
