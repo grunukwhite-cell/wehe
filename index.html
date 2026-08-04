@@ -32,7 +32,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center; /* Центрирование содержимого по вертикали */
+      justify-content: center;
       min-height: 100vh;
       padding: 20px 16px 60px;
       overflow-x: hidden;
@@ -56,10 +56,8 @@
       to   { transform: translate(40px, 30px) scale(1.12); }
     }
 
-    /* Noise grain texture overlay */
     .noise { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 200px; }
 
-    /* Floating particles */
     .particles-container { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
     .particle { position: absolute; border-radius: 50%; animation: floatUp linear infinite; }
     @keyframes floatUp {
@@ -115,7 +113,7 @@
     .container {
       position: relative; z-index: 2;
       display: flex; flex-direction: column; align-items: center;
-      width: 100%; max-width: 620px;
+      width: 100%; max-width: 640px;
       padding-top: 20px;
     }
 
@@ -151,14 +149,23 @@
       max-width: 320px;
     }
 
-    /* ===== SOCIAL BUTTONS ===== */
-    .social-links { display: flex; gap: 12px; margin-bottom: 24px; }
+    /* ===== SOCIAL & PAYMENT BUTTONS ===== */
+    .social-links { 
+      display: flex; 
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px; 
+      margin-bottom: 24px; 
+      width: 100%;
+      max-width: 520px;
+    }
     .social-btn {
-      display: flex; align-items: center; gap: 10px;
-      padding: 11px 22px; border-radius: 16px;
-      text-decoration: none; font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 18px; border-radius: 16px;
+      text-decoration: none; font-weight: 700; font-size: 13px;
       transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-      position: relative; overflow: hidden; letter-spacing: 0.3px;
+      position: relative; overflow: hidden; letter-spacing: 0.3px; cursor: pointer;
+      border: none; flex: 1; min-width: 130px;
     }
     .social-btn::before {
       content: ''; position: absolute; inset: 0;
@@ -168,20 +175,27 @@
     }
     .social-btn:hover::before { transform: translateX(200%) skewX(-15deg); }
     .social-btn:hover { transform: translateY(-3px) scale(1.02); }
+    
     .btn-telegram {
       background: linear-gradient(135deg, #0088cc, #26a9e1);
-      color: #fff; box-shadow: 0 8px 24px rgba(0,136,204,0.35);
+      color: #fff; box-shadow: 0 8px 20px rgba(0,136,204,0.3);
     }
-    .btn-telegram:hover { box-shadow: 0 12px 32px rgba(0,136,204,0.55); }
     .btn-of {
       background: linear-gradient(135deg, #1a8cff, #0066dd);
-      color: #fff; box-shadow: 0 8px 24px rgba(0,102,221,0.35);
+      color: #fff; box-shadow: 0 8px 20px rgba(0,102,221,0.3);
     }
-    .btn-of:hover { box-shadow: 0 12px 32px rgba(0,102,221,0.55); }
-    .social-icon { font-size: 18px; }
+    .btn-paypal {
+      background: linear-gradient(135deg, #003087, #0070ba);
+      color: #fff; box-shadow: 0 8px 20px rgba(0,112,186,0.3);
+    }
+    .btn-crypto {
+      background: linear-gradient(135deg, #26a17b, #00b894);
+      color: #fff; box-shadow: 0 8px 20px rgba(38,161,123,0.3);
+    }
+    .social-icon { font-size: 16px; }
     .social-badge {
       font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
-      background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; margin-left: -4px;
+      background: rgba(255,255,255,0.2); padding: 2px 5px; border-radius: 4px;
     }
 
     /* ===== PROMO INPUT ===== */
@@ -247,7 +261,6 @@
     .wheel-section.zoomed-in  { transform: scale(1.15); margin-bottom: 40px; }
     .wheel-section.zoomed-out { transform: scale(0.92); margin-bottom: -10px; }
 
-    /* Decorative outer rings */
     .wheel-ring { position: absolute; border-radius: 50%; pointer-events: none; }
     .wheel-ring-1 {
       inset: -18px; background: transparent;
@@ -307,12 +320,10 @@
     .wheel-wrapper.win-bounce { animation: winBounce 0.7s cubic-bezier(0.36,0.07,0.19,0.97) forwards; }
     @keyframes winBounce { 0%{transform:scale(1)} 15%{transform:scale(1.07)} 35%{transform:scale(0.97)} 55%{transform:scale(1.03)} 75%{transform:scale(0.99)} 100%{transform:scale(1)} }
 
-    /* Bulbs */
     .bulbs-container { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; z-index: 5; }
     .bulb { position: absolute; width: 11px; height: 11px; border-radius: 50%; background: #ffd32a; box-shadow: 0 0 7px #ffd32a, 0 0 14px rgba(255,211,42,0.5); transform: translate(-50%,-50%); transition: background 0.15s, box-shadow 0.15s; }
     .bulb.off { background: #2d3047; box-shadow: none; }
 
-    /* Arrow */
     .arrow-container { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; flex-direction: column; align-items: center; transform-origin: top center; transition: transform 0.08s ease-out; }
     .arrow-container.click-bend { transform: translateX(-50%) rotate(-20deg) scale(1.08); }
     .arrow { width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 42px solid var(--red); position: relative; filter: drop-shadow(0 0 12px rgba(255,71,87,0.8)); }
@@ -403,7 +414,7 @@
     .history-time { font-size: 11px; color: rgba(255,255,255,0.25); font-weight: 500; }
     .empty-history { color: rgba(255,255,255,0.2); font-size: 13px; text-align: center; padding: 20px 0; }
 
-    /* ===== WIN MODAL ===== */
+    /* ===== WIN & PAYMENT MODAL ===== */
     .win-modal-overlay {
       display: flex; position: fixed; inset: 0;
       background: rgba(5,6,12,0.92); backdrop-filter: blur(12px) saturate(150%);
@@ -453,7 +464,22 @@
       display: flex; justify-content: space-between; align-items: center; gap: 12px;
     }
     .claim-code-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.25); margin-bottom: 2px; }
-    .code-text { font-family: 'Courier New', monospace; font-size: 15px; color: var(--yellow); font-weight: 700; letter-spacing: 2px; }
+    .code-text { font-family: 'Courier New', monospace; font-size: 15px; color: var(--yellow); font-weight: 700; letter-spacing: 2px; word-break: break-all; }
+
+    .crypto-select {
+      width: 100%;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(10, 11, 18, 0.8);
+      color: #fff;
+      font-size: 13px;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      cursor: pointer;
+    }
+    .crypto-select option { background: #12131e; color: #fff; }
 
     .btn-copy {
       padding: 8px 16px; font-size: 11px; border-radius: 10px; font-weight: 700;
@@ -474,20 +500,16 @@
 
     #confettiCanvas { position: absolute; top: -80px; left: -80px; width: calc(100% + 160px); height: calc(100% + 160px); pointer-events: none; z-index: 505; }
 
-    /* ===== FOOTER ===== */
     .footer-note {
       margin-top: 30px; font-size: 11px; color: rgba(255,255,255,0.15);
       text-align: center; letter-spacing: 0.5px; font-weight: 500;
     }
 
-    /* ===== SCROLLBAR ===== */
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255,71,87,0.25); border-radius: 4px; }
 
-    /* ===================================================
-        MOBILE RESPONSIVE (ОПТИМИЗАЦИЯ ДЛЯ ТЕЛЕФОНОВ)
-    =================================================== */
+    /* MOBILE RESPONSIVE */
     @media (max-width: 600px) {
       body { padding: 10px 12px 40px; justify-content: flex-start; }
 
@@ -501,9 +523,9 @@
       .subtitle { font-size: 12px; margin-bottom: 16px; }
       .header-badge { font-size: 10px; padding: 3px 10px; margin-bottom: 10px; }
 
-      .social-links { gap: 8px; margin-bottom: 16px; }
-      .social-btn { padding: 9px 14px; font-size: 12px; border-radius: 12px; }
-      .social-icon { font-size: 15px; }
+      .social-links { gap: 6px; margin-bottom: 16px; }
+      .social-btn { padding: 8px 10px; font-size: 11px; border-radius: 12px; min-width: 100px; }
+      .social-icon { font-size: 14px; }
       .social-badge { display: none; }
 
       .promo-section { margin-bottom: 16px; }
@@ -511,7 +533,6 @@
       #promoInput { width: 100%; padding: 13px 16px; font-size: 15px; border-radius: 12px; }
       #spinBtn { width: 100%; padding: 14px; font-size: 15px; border-radius: 12px; letter-spacing: 1.5px; }
 
-      /* Адаптивное центрированное колесо */
       .wheel-section {
         width: min(88vw, 360px);
         height: min(88vw, 360px);
@@ -550,16 +571,9 @@
       .win-modal h2 { font-size: 18px; }
       .win-prize-name { font-size: 22px; }
       .btn-claim { padding: 13px; font-size: 14px; }
-      .code-text { font-size: 13px; letter-spacing: 1px; }
+      .code-text { font-size: 12px; letter-spacing: 1px; }
 
       .footer-note { margin-top: 24px; }
-    }
-
-    @media (max-width: 380px) {
-      h1 { font-size: 1.7rem; }
-      .wheel-section { width: 85vw; height: 85vw; }
-      .social-btn { padding: 8px 10px; font-size: 11px; }
-      #spinBtn { font-size: 14px; letter-spacing: 1px; }
     }
 
     @media (hover: none) {
@@ -609,7 +623,7 @@
     <h1>Wheel of Lera</h1>
     <div class="subtitle">Enter your exclusive code and spin for a surprise</div>
 
-    <!-- SOCIAL LINKS -->
+    <!-- SOCIAL & PAYMENT LINKS -->
     <div class="social-links">
       <a href="https://t.me/mmoondrifted" target="_blank" class="social-btn btn-telegram" onclick="playBubbleSound()">
         <span class="social-icon">✈️</span>
@@ -621,6 +635,15 @@
         OnlyFans
         <span class="social-badge">18+</span>
       </a>
+      <button class="social-btn btn-paypal" onclick="playBubbleSound(); openPaymentModal('paypal');">
+        <span class="social-icon">💳</span>
+        PayPal
+      </button>
+      <!-- Скрытая кнопка CRYPTO (если понадобится вернуть - просто убери style="display:none;") -->
+      <button class="social-btn btn-crypto" style="display:none;" onclick="playBubbleSound(); openPaymentModal('crypto');">
+        <span class="social-icon">💲</span>
+        Crypto
+      </button>
     </div>
 
     <!-- PROMO INPUT -->
@@ -666,7 +689,7 @@
         </div>
         <div class="history-sync" id="historySync">
           <div class="sync-dot"></div>
-          Syncing...
+          Local
         </div>
       </div>
       <div class="history-list" id="historyList">
@@ -677,8 +700,34 @@
     <div class="footer-note">Made with ❤️ · Wheel of Lera · All prizes are real</div>
   </div>
 
+  <!-- PAYMENT MODAL -->
+  <div class="win-modal-overlay" id="paymentModal" onclick="handleOverlayClick(event, 'paymentModal')">
+    <div class="win-modal-card-wrapper">
+      <div class="win-modal">
+        <div class="win-icon" id="payIcon">💳</div>
+        <div class="win-modal-title" id="paySubTitle">Payment Details</div>
+        <h2 id="payTitle">PayPal</h2>
+        
+        <select class="crypto-select" id="cryptoSelect" style="display:none;" onchange="changeCryptoNetwork()">
+          <option value="USDT_TRC20">USDT TRC-20</option>
+          <option value="USDT_ERC20">USDT ERC-20</option>
+          <option value="BTC">BTC</option>
+          <option value="ETH">ETH</option>
+        </select>
+
+        <div class="win-prize-banner" style="background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1);">
+          <div class="win-prize-label" id="payLabel" style="color: rgba(255,255,255,0.5);">Recipient / Address</div>
+          <div class="code-text" id="payAddress" style="font-size: 13px; margin-top: 6px; color: #fff;">-</div>
+        </div>
+
+        <button class="btn-claim" id="copyPayBtn" onclick="copyPaymentDetails();">Copy Address 📋</button>
+        <button class="btn-copy" style="width: 100%; margin-top: 10px; padding: 12px;" onclick="closePaymentModal();">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- WIN MODAL -->
-  <div class="win-modal-overlay" id="winModal">
+  <div class="win-modal-overlay" id="winModal" onclick="handleOverlayClick(event, 'winModal')">
     <div class="win-modal-card-wrapper">
       <canvas id="confettiCanvas"></canvas>
       <div class="win-modal">
@@ -706,9 +755,7 @@
   </div>
 
   <script>
-    // ====================================================
     // HOTKEY: CTRL + SHIFT + L → Admin Panel
-    // ====================================================
     window.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.shiftKey && ['L','l','д','Д'].includes(e.key)) {
         e.preventDefault();
@@ -716,18 +763,87 @@
       }
     });
 
-    // ====================================================
+    // OVERLAY CLICK TO CLOSE MODALS
+    function handleOverlayClick(event, modalId) {
+      if (event.target.id === modalId) {
+        if (modalId === 'paymentModal') {
+          closePaymentModal();
+        } else if (modalId === 'winModal') {
+          handleClaimAction();
+        }
+      }
+    }
+
     // SUPABASE
-    // ====================================================
     const SUPABASE_URL = 'https://trzfwnfmzhzpjambccqb.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyemZ3bmZtemh6cGphbWJjY3FiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3OTEyNjIsImV4cCI6MjEwMTM2NzI2Mn0.pNZglgTBCpxh2n82t-CYUAk-I70GmZT_sZbHSM1OPvU';
     let sb = null;
     try { if (window.supabase) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
     catch(e) { console.error('Supabase init:', e); }
 
-    // ====================================================
+    // PAYMENT MODAL LOGIC
+    let activePayAddress = '';
+    const cryptoAddresses = {
+      'USDT_TRC20': 'GFMcuE2AcgxcxyHmXmfxmKgUfW4JLtmuRUKxe4sEdSNq',
+      'USDT_ERC20': 'GFMcuE2AcgxcxyHmXmfxmKgUfW4JLtmuRUKxe4sEdSNq',
+      'BTC': 'GFMcuE2AcgxcxyHmXmfxmKgUfW4JLtmuRUKxe4sEdSNq',
+      'ETH': 'GFMcuE2AcgxcxyHmXmfxmKgUfW4JLtmuRUKxe4sEdSNq'
+    };
+
+    function openPaymentModal(type) {
+      const modal = document.getElementById('paymentModal');
+      const icon = document.getElementById('payIcon');
+      const title = document.getElementById('payTitle');
+      const subTitle = document.getElementById('paySubTitle');
+      const label = document.getElementById('payLabel');
+      const address = document.getElementById('payAddress');
+      const cryptoSelect = document.getElementById('cryptoSelect');
+      const copyBtn = document.getElementById('copyPayBtn');
+
+      if (type === 'paypal') {
+        cryptoSelect.style.display = 'none';
+        icon.innerText = '💳';
+        title.innerText = 'PayPal';
+        subTitle.innerText = 'Email for payment';
+        label.innerText = 'PayPal Account Email';
+        activePayAddress = 'elfbar32212@ukr.net';
+        address.innerText = activePayAddress;
+      } else if (type === 'crypto') {
+        cryptoSelect.style.display = 'block';
+        cryptoSelect.value = 'USDT_TRC20';
+        icon.innerText = '💲';
+        title.innerText = 'Crypto Payment';
+        subTitle.innerText = 'Select Currency & Network';
+        changeCryptoNetwork();
+      }
+      copyBtn.innerText = 'Copy Address 📋';
+      modal.classList.add('active');
+    }
+
+    function changeCryptoNetwork() {
+      const select = document.getElementById('cryptoSelect');
+      const label = document.getElementById('payLabel');
+      const address = document.getElementById('payAddress');
+      const val = select.value;
+
+      activePayAddress = cryptoAddresses[val] || 'GFMcuE2AcgxcxyHmXmfxmKgUfW4JLtmuRUKxe4sEdSNq';
+      label.innerText = `Network: ${select.options[select.selectedIndex].text}`;
+      address.innerText = activePayAddress;
+    }
+
+    function closePaymentModal() {
+      document.getElementById('paymentModal').classList.remove('active');
+    }
+
+    function copyPaymentDetails() {
+      navigator.clipboard.writeText(activePayAddress);
+      playClaimSound();
+      const copyBtn = document.getElementById('copyPayBtn');
+      copyBtn.innerText = 'Copied! ❤️';
+      setTimeout(() => copyBtn.innerText = 'Copy Address 📋', 2000);
+    }
+
     // AUDIO ENGINE
-    // ====================================================
     let audioCtx = null, isMusicPlaying = false, musicTimer = null, stepCount = 0, currentTrack = 0;
     let panelLeaveTimer = null;
 
@@ -793,7 +909,7 @@
       }, 700);
     }
 
-    // ---- SOUND ENGINE ----
+    // SOUND ENGINE
     function tone(type, freq, freqEnd, dur, vol, delay=0, filterFreq=null) {
       if (!audioCtx) return;
       const now = audioCtx.currentTime + delay;
@@ -916,9 +1032,7 @@
       noiseBurst(0.04, 0.08, 5000, 0.0);
     }
 
-    // ====================================================
     // PRIZE META
-    // ====================================================
     const prizeMeta = {
       "JACKPOT":     { emoji:"🎰🔥", title:"JACKPOT!", quotes:["You hit the grand prize! Luck is on your side ❤️","Absolutely unstoppable today!"] },
       "RESPIN":      { emoji:"🔄✨", title:"FREE RESPIN!", quotes:["The universe gives you another chance!","Let's go again! 😉"] },
@@ -928,9 +1042,7 @@
       "DEFAULT":     { emoji:"🎁✨", title:"You Won!", quotes:["Your prize is waiting — claim it now! 🔥"] }
     };
 
-    // ====================================================
     // BULBS
-    // ====================================================
     const bulbsContainer = document.getElementById('bulbsContainer');
     const bulbs = [];
     for (let i=0;i<24;i++) {
@@ -949,9 +1061,7 @@
     }
     startBulbChaser(false);
 
-    // ====================================================
     // PARTICLES
-    // ====================================================
     const pc = document.getElementById('particlesContainer');
     const particleColors = [
       'rgba(255,71,87,0.5)', 'rgba(108,92,231,0.4)',
@@ -964,9 +1074,7 @@
       pc.appendChild(p);
     }
 
-    // ====================================================
     // SECTORS
-    // ====================================================
     const sectors = [
       { label:"Better luck", color:"#2d3436" },
       { label:"ASMR 30s",    color:"#e84393" },
@@ -987,9 +1095,7 @@
     const probs = [21.9,10.6,9.7,8.8,8.8,8.0,5.3,5.3,4.8,4.4,4.1,2.7,2.7,1.8,1.1];
     const NUM=sectors.length, ARC=(2*Math.PI)/NUM, CX=400, CY=400, R=370;
 
-    // ====================================================
     // DRAW WHEEL
-    // ====================================================
     const canvas=document.getElementById('wheel'), ctx=canvas.getContext('2d');
     let currentRotation=-Math.PI/2, highlightIndex=-1;
 
@@ -1102,9 +1208,7 @@
     }
     drawWheel(currentRotation);
 
-    // ====================================================
     // SPIN LOGIC
-    // ====================================================
     let currentWonPrize='', currentClaimCode='', isSpinning=false, lastTickSector=-1, nextChainedPrize='RANDOM';
 
     function triggerArrowBend() {
@@ -1218,6 +1322,8 @@
         resultDiv.style.color='#2ed573';
         resultDiv.innerText='✦ Won: '+targetPrize;
         showWinModal(targetPrize);
+        
+        // Отправка в историю
         saveHistory(targetPrize, currentClaimCode);
       }
       requestAnimationFrame(frame);
@@ -1231,9 +1337,7 @@
       },85);
     }
 
-    // ====================================================
     // WIN MODAL + CONFETTI
-    // ====================================================
     function showWinModal(prize) {
       const meta=prizeMeta[prize]||prizeMeta['DEFAULT'];
       const claimBox=document.getElementById('claimCodeBox');
@@ -1307,55 +1411,49 @@
     }
     function stopConfetti(){ cancelAnimationFrame(cRAF); if(cCtx) cCtx.clearRect(0,0,9999,9999); }
 
-    // ====================================================
-    // HISTORY
-    // ====================================================
+    // HISTORY LOGIC
+    // 1. Сохранение в локальную память пользователя (для отображения на сайте)
+    // 2. Отправка записи в базу данных Supabase (для глобального учета в админке)
     async function saveHistory(prize, claimCode) {
-      const now=new Date().toISOString();
-      let local=JSON.parse(localStorage.getItem('spin_history_local')||'[]');
-      local.unshift({prize, code:claimCode||'', created_at:now});
-      if(local.length>20) local=local.slice(0,20);
-      localStorage.setItem('spin_history_local',JSON.stringify(local));
+      const now = new Date().toISOString();
+      let local = JSON.parse(localStorage.getItem('spin_history_local') || '[]');
+      local.unshift({ prize, code: claimCode || '', created_at: now });
+      if (local.length > 20) local = local.slice(0, 20);
+      localStorage.setItem('spin_history_local', JSON.stringify(local));
+      
+      // Обновляем визуальный список спинов пользователя локально
       renderHistory(local);
 
-      if(sb){
+      // Отправляем глобальный лог в Supabase для админа
+      if (sb) {
         try {
-          const {error}=await sb.from('spin_history').insert([{prize, code:claimCode}]);
-          if(error){ await sb.from('spin_history').insert([{prize}]); }
-          setTimeout(loadHistory, 800);
-        } catch(e){ console.error('saveHistory:', e); }
-      }
-    }
-
-    async function loadHistory(){
-      const sync=document.getElementById('historySync');
-      if(sb){
-        sync.innerHTML='<div class="sync-dot"></div> Syncing...';
-        try{
-          const {data,error}=await sb.from('spin_history').select('*').order('created_at',{ascending:false}).limit(15);
-          if(!error&&data&&data.length>0){
-            sync.innerHTML='<div class="sync-dot"></div> Live';
-            localStorage.setItem('spin_history_local',JSON.stringify(data));
-            renderHistory(data); return;
+          const { error } = await sb.from('spin_history').insert([{ prize: prize, code: claimCode }]);
+          if (error) {
+            await sb.from('spin_history').insert([{ prize: prize }]);
           }
-          sync.innerHTML='<div class="sync-dot" style="background:rgba(255,255,255,0.3)"></div> No data';
-        } catch(e){ console.warn('History fetch failed:', e); }
+        } catch(e) {
+          console.error('Ошибка записи истории в Supabase:', e);
+        }
       }
-      sync.innerHTML='<div class="sync-dot" style="background:#fdcb6e"></div> Local';
-      renderHistory();
     }
 
-    function renderHistory(dataList){
-      const list=document.getElementById('historyList');
-      const data=dataList||JSON.parse(localStorage.getItem('spin_history_local')||'[]');
-      if(!data||data.length===0){
-        list.innerHTML='<div class="empty-history">No spins recorded yet ✦</div>'; return;
+    // Загрузка только локальной истории текущего пользователя
+    function loadHistory() {
+      const local = JSON.parse(localStorage.getItem('spin_history_local') || '[]');
+      renderHistory(local);
+    }
+
+    function renderHistory(dataList) {
+      const list = document.getElementById('historyList');
+      const data = dataList || JSON.parse(localStorage.getItem('spin_history_local') || '[]');
+      if (!data || data.length === 0) {
+        list.innerHTML = '<div class="empty-history">No spins recorded yet ✦</div>'; return;
       }
-      list.innerHTML=data.map((item,i)=>{
-        const cls=item.prize==='JACKPOT'?'prize-jackpot':item.prize==='RESPIN'?'prize-respin':item.prize==='Better luck'?'prize-bad':'';
-        const em=item.prize==='JACKPOT'?'🎰':item.prize==='RESPIN'?'🔄':item.prize==='Better luck'?'🙈':'🎁';
-        const ts=item.created_at?new Date(item.created_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'Just now';
-        return `<div class="history-item ${cls}" style="animation-delay:${i*0.03}s">
+      list.innerHTML = data.map((item, i) => {
+        const cls = item.prize === 'JACKPOT' ? 'prize-jackpot' : item.prize === 'RESPIN' ? 'prize-respin' : item.prize === 'Better luck' ? 'prize-bad' : '';
+        const em  = item.prize === 'JACKPOT' ? '🎰' : item.prize === 'RESPIN' ? '🔄' : item.prize === 'Better luck' ? '🙈' : '🎁';
+        const ts  = item.created_at ? new Date(item.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Just now';
+        return `<div class="history-item ${cls}" style="animation-delay:${i * 0.03}s">
           <div class="history-prize">
             <span class="history-prize-icon">${em}</span>
             <span class="history-prize-name">${item.prize}</span>
